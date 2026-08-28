@@ -7,7 +7,7 @@ urlpatterns = [
     path('Add/',views.book_add_view,name='book-Add'),
     path('Search/',views.book_search_view,name='book-Add'),
     path('Edit/<int:book_id>/',views.book_edit_view,name='book-Edit'),
-    path('Delete/',views.book_delete_view,name='book-Delete'),
+    path('Delete/<int:book_id>',views.book_delete_view,name='book-Delete'),
     path('Filter/',views.book_filter_view,name='book-Filter'),
     path('Filter/Delete',views.book_filter_delete_view,name='book-Filter-Delete'),
 ]

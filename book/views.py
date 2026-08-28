@@ -1,4 +1,4 @@
-from django.shortcuts import render,get_object_or_404,redirect
+from django.shortcuts import render,redirect
 from django.db.models import Q
 from .models import *
 
@@ -17,13 +17,13 @@ def book_list_view(request):
 def book_detail_view(request,book_id):
     
     try:
-        book = get_object_or_404(pk=book_id)
+        book = Book.objects.get(pk=book_id)
 
-        context = { 'books' : books }
+        context = { 'book' : book }
 
         return render(
             request,
-            'book_list.html',
+            'book_detail.html',
             context)
 
     except Book.DoesNotExist:
@@ -49,15 +49,15 @@ def book_add_view(request):
         genre = request.POST.get('genre')
 
         Book.objects.create(
-            title,
-            author,
-            isbn,
-            publisher,
-            publish_date,
-            price,
-            page,
-            favorites,
-            genre)
+            title=title,
+            author=author,
+            isbn=isbn,
+            publisher=publisher,
+            publish_date=publish_date,
+            price=price,
+            page=page,
+            favorites=favorites,
+            genre=genre)
 
         return redirect('book-List')
 
@@ -66,25 +66,25 @@ def book_add_view(request):
 
 def book_search_view(request):
     
-    books.objects.all()
+    books = Book.objects.all()
 
     search = request.GET.get('search')
 
     if search:
 
-        books = Books.filter(
+        books = books.filter(
             Q(title__icontains=search)|
             Q(author__icontains=search))
 
     return render(
         request,
-        'search.html'
+        'search.html',
         { 'books' : books })
 
 
 def book_edit_view(request,book_id):
     try:
-        book = get_object_or_404(pk=book_id)
+        book = Book.objects.get(pk=book_id)
 
         if request.method == "POST":
 
@@ -129,9 +129,9 @@ def book_edit_view(request,book_id):
             context)
 
 
-def book_delete_view(request):
+def book_delete_view(request,book_id):
     try:
-        book = get_object_or_404(pk=book_id)
+        book = Book.objects.get(pk=book_id)
 
         if request.method == "POST":
             
@@ -167,20 +167,26 @@ def book_filter_view(request):
 
     return render(
         request,
-        'search.html'
+        'search.html',
         { 'books' : books })
 
 def book_filter_delete_view(request):
     
     books = Book.objects.all()
 
-    search = request.GET.get('search')
-    max_publish_date = request.GET.get('max_publish_date')
-    min_publish_date = request.GET.get('min_publish_date')
+    if request.method == "POST":
+        search = request.POST.get('search')
+        max_publish_date = request.POST.get('max_publish_date')
+        min_publish_date = request.POST.get('min_publish_date')
+
+    else:
+        search = request.GET.get('search')
+        max_publish_date = request.GET.get('max_publish_date')
+        min_publish_date = request.GET.get('min_publish_date')
 
     if search:
 
-        books = Books.filter(
+        books = books.filter(
             Q(title__icontains=search)|
             Q(author__icontains=search))
 
@@ -192,9 +198,15 @@ def book_filter_delete_view(request):
 
         books = books.filter(publish_date__gte=min_publish_date)
 
-    book.delete()
+    if request.method == "POST":
 
+        books.delete()
+
+        return redirect(
+            'book-List'
+            )
     return render(
         request,
-        'filter_delete.html'
-        )
+        "filter_delete.html",
+        {"books": books}
+    )
