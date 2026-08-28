@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BookVault — مدیریت حرفه‌ای کتاب‌ها">
+    <title>{% block title %}BookVault{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'Tahoma', 'sans-serif'],
+                    },
+                    colors: {
+                        ink: '#09090b',
+                        paper: '#fafafa',
+                        violet: {
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 12px 40px rgba(0,0,0,.07)',
+                        'glow': '0 0 0 1px rgba(139,92,246,.15), 0 20px 60px rgba(139,92,246,.10)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        * { scroll-behavior: smooth; }
+        body { font-family: Vazirmatn, Tahoma, sans-serif; }
+        ::selection { background: #8b5cf6; color: white; }
+        .grid-bg {
+            background-image: linear-gradient(rgba(0,0,0,.035) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0,0,0,.035) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .glass { background: rgba(255,255,255,.78); backdrop-filter: blur(18px); }
+        .animate-float { animation: float 5s ease-in-out infinite; }
+        .animate-pulse-soft { animation: pulseSoft 3s ease-in-out infinite; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        @keyframes pulseSoft { 0%,100%{opacity:.55} 50%{opacity:1} }
+        .book-card { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+        .book-card:hover { transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,.10); }
+        .focus-ring:focus { outline: none; box-shadow: 0 0 0 4px rgba(139,92,246,.15); border-color:#8b5cf6; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="min-h-screen bg-zinc-50 text-zinc-950 antialiased">
+    <div class="fixed inset-0 -z-10 grid-bg"></div>
+    <div class="fixed top-0 right-0 -z-10 h-80 w-80 rounded-full bg-violet-200/30 blur-3xl"></div>
+    <div class="fixed bottom-0 left-0 -z-10 h-96 w-96 rounded-full bg-zinc-200/50 blur-3xl"></div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-zinc-200/70 bg-white/80 backdrop-blur-xl">
+        <div class="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+            <a href="{% url 'book-List' %}" class="group flex items-center gap-3">
+                <span class="grid h-11 w-11 place-items-center rounded-2xl bg-zinc-950 text-white shadow-lg transition duration-300 group-hover:rotate-3 group-hover:scale-105">
+                    <i data-lucide="library-big" class="h-5 w-5"></i>
+                </span>
+                <span>
+                    <span class="block text-lg font-black tracking-tight">BookVault</span>
+                    <span class="hidden text-[11px] font-medium text-zinc-500 sm:block">کتابخانه‌ی شما، حرفه‌ای‌تر</span>
+                </span>
+            </a>
+
+            <nav class="hidden items-center gap-1 md:flex">
+                <a href="{% url 'book-List' %}" class="rounded-xl px-4 py-2.5 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950">
+                    کتاب‌ها
+                </a>
+                <a href="{% url 'book-Add' %}" class="rounded-xl px-4 py-2.5 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950">
+                    افزودن کتاب
+                </a>
+                <a href="{% url 'book-Filter' %}" class="rounded-xl px-4 py-2.5 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950">
+                    فیلتر
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <a href="{% url 'book-Add' %}" class="hidden items-center gap-2 rounded-xl bg-zinc-950 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-violet-600 sm:flex">
+                    <i data-lucide="plus" class="h-4 w-4"></i>
+                    کتاب جدید
+                </a>
+                <button id="mobileMenuBtn" class="grid h-10 w-10 place-items-center rounded-xl border border-zinc-200 bg-white md:hidden" aria-label="منو">
+                    <i data-lucide="menu" class="h-5 w-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden border-t border-zinc-100 bg-white px-4 py-3 md:hidden">
+            <div class="grid gap-1">
+                <a href="{% url 'book-List' %}" class="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-zinc-100">کتاب‌ها</a>
+                <a href="{% url 'book-Add' %}" class="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-zinc-100">افزودن کتاب</a>
+                <a href="{% url 'book-Filter' %}" class="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-zinc-100">فیلتر و حذف گروهی</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="mx-auto min-h-[calc(100vh-160px)] max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-zinc-200 bg-white">
+        <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-7 text-sm text-zinc-500 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+            <div class="flex items-center gap-2">
+                <span class="grid h-8 w-8 place-items-center rounded-lg bg-zinc-950 text-white">
+                    <i data-lucide="book-open" class="h-4 w-4"></i>
+                </span>
+                <span>ساخته شده برای مدیریت ساده‌تر کتاب‌ها.</span>
+            </div>
+            <div class="flex items-center gap-5">
+                <span>BookVault © 2026</span>
+                <span class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span> طراحی مدرن</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const menu = document.getElementById('mobileMenu');
+        if (menuBtn) menuBtn.addEventListener('click', () => menu.classList.toggle('hidden'));
+
+        document.querySelectorAll('[data-confirm]').forEach(el => {
+            el.addEventListener('click', e => {
+                if (!confirm(el.dataset.confirm)) e.preventDefault();
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -10,7 +10,7 @@ def book_list_view(request):
 
     return render(
         request,
-        'book_list.html',
+        'book/book_list.html',
         context)
 
 
@@ -23,7 +23,7 @@ def book_detail_view(request,book_id):
 
         return render(
             request,
-            'book_detail.html',
+            'book/book_detail.html',
             context)
 
     except Book.DoesNotExist:
@@ -31,7 +31,7 @@ def book_detail_view(request,book_id):
 
         return render(
             request,
-            '404.html',
+            'book/404.html',
             context)
 
 
@@ -61,7 +61,7 @@ def book_add_view(request):
 
         return redirect('book-List')
 
-    return render(request,'add_book.html')
+    return render(request,'book/add_book.html')
 
 
 def book_search_view(request):
@@ -78,7 +78,7 @@ def book_search_view(request):
 
     return render(
         request,
-        'search.html',
+        'book/search.html',
         { 'books' : books })
 
 
@@ -114,7 +114,7 @@ def book_edit_view(request,book_id):
 
         return render(
         request,
-        "edit_book.html",
+        "book/edit_book.html",
         {"book": book}
     )
 
@@ -125,7 +125,7 @@ def book_edit_view(request,book_id):
 
         return render(
             request,
-            '404.html',
+            'book/404.html',
             context)
 
 
@@ -146,7 +146,7 @@ def book_delete_view(request,book_id):
 
         return render(
             request,
-            '404.html',
+            'book/404.html',
             context)
 
 
@@ -167,7 +167,7 @@ def book_filter_view(request):
 
     return render(
         request,
-        'search.html',
+        'book/search.html',
         { 'books' : books })
 
 def book_filter_delete_view(request):
@@ -207,6 +207,6 @@ def book_filter_delete_view(request):
             )
     return render(
         request,
-        "filter_delete.html",
+        "book/filter_delete.html",
         {"books": books}
     )

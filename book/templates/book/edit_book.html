@@ -1,0 +1,32 @@
+{% extends "book/base.html" %}
+{% block title %}ویرایش {{ book.title }} | BookVault{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl">
+    <div class="mb-8">
+        <a href="{% url 'book-Detail' book.id %}" class="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-500 hover:text-zinc-950"><i data-lucide="arrow-right" class="h-4 w-4"></i> بازگشت به جزئیات</a>
+        <h1 class="text-3xl font-black tracking-tight">ویرایش کتاب</h1>
+        <p class="mt-2 text-sm text-zinc-500">اطلاعات «{{ book.title }}» را به‌روزرسانی کن.</p>
+    </div>
+
+    <form method="post" class="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-soft">
+        {% csrf_token %}
+        <div class="grid gap-5 p-6 sm:grid-cols-2 sm:p-8">
+            <label class="sm:col-span-2">
+                <span class="mb-2 block text-sm font-bold">عنوان کتاب</span>
+                <input name="title" value="{{ book.title }}" required class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition">
+            </label>
+            <label><span class="mb-2 block text-sm font-bold">نویسنده</span><input name="author" value="{{ book.author }}" required class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition"></label>
+            <label><span class="mb-2 block text-sm font-bold">ناشر</span><input name="publisher" value="{{ book.publisher }}" required class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition"></label>
+            <label><span class="mb-2 block text-sm font-bold">ISBN</span><input name="isbn" value="{{ book.isbn }}" required class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 font-mono text-sm transition" dir="ltr"></label>
+            <label><span class="mb-2 block text-sm font-bold">تاریخ انتشار</span><input name="publish_date" value="{{ book.publish_date|date:'Y-m-d' }}" required type="date" class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition"></label>
+            <label><span class="mb-2 block text-sm font-bold">قیمت</span><input name="price" value="{{ book.price }}" required type="number" min="0" step="any" class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition"></label>
+            <label><span class="mb-2 block text-sm font-bold">تعداد صفحات</span><input name="page" value="{{ book.page }}" required type="number" min="1" class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition"></label>
+        </div>
+        <div class="flex flex-col-reverse gap-3 border-t border-zinc-100 bg-zinc-50/50 px-6 py-5 sm:flex-row sm:justify-end sm:px-8">
+            <a href="{% url 'book-Detail' book.id %}" class="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 py-3 text-sm font-bold text-zinc-600">انصراف</a>
+            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-950 px-6 py-3 text-sm font-bold text-white hover:bg-violet-600"><i data-lucide="save" class="h-4 w-4"></i> ذخیره تغییرات</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
