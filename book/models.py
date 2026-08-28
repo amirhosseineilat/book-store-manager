@@ -20,7 +20,7 @@ class Book(models.Model):
     price = models.FloatField()
     page = models.IntegerField()
     favorites = models.ManyToManyField(User, related_name="favorites")
-    genre = models.ManyToManyField(User, related_name="categories")
+    genre = models.ManyToManyField(Category, related_name="categories")
 
     def __str__(self):
         return self.title
