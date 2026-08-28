@@ -1,49 +1,408 @@
 {% extends "book/base.html" %}
-{% block title %}جست‌وجوی کتاب | BookVault{% endblock %}
+
+{% block title %}جست‌وجو و فیلتر | BookVault{% endblock %}
 
 {% block content %}
-<div class="mb-8">
-    <div class="mb-3 inline-flex rounded-full bg-violet-50 px-3 py-1.5 text-xs font-bold text-violet-600">جست‌وجو</div>
-    <h1 class="text-3xl font-black tracking-tight">کتاب موردنظرت را پیدا کن.</h1>
-    <p class="mt-2 text-sm text-zinc-500">عنوان یا نام نویسنده را وارد کن.</p>
+
+<!-- Header -->
+
+<section class="mb-8">
+    <div class="mb-3 inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-1.5 text-xs font-bold text-violet-600">
+        <i data-lucide="sliders-horizontal" class="h-3.5 w-3.5"></i>
+        جست‌وجو و فیلتر
+    </div>
+
+```
+<h1 class="text-3xl font-black tracking-tight sm:text-4xl">
+    کتاب موردنظرت را پیدا کن.
+</h1>
+
+<p class="mt-2 text-sm leading-6 text-zinc-500">
+    می‌توانی بر اساس عنوان، نویسنده یا بازه‌ی تاریخ انتشار کتاب‌ها را فیلتر کنی.
+</p>
+```
+
+</section>
+
+<!-- Search & Filter -->
+
+<section class="mb-10 overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-soft">
+
+```
+<!-- Form Header -->
+<div class="border-b border-zinc-100 bg-zinc-50/70 px-6 py-5 sm:px-8">
+    <div class="flex items-center gap-3">
+
+        <div class="grid h-11 w-11 place-items-center rounded-xl bg-zinc-950 text-white">
+            <i data-lucide="search" class="h-5 w-5"></i>
+        </div>
+
+        <div>
+            <h2 class="font-extrabold">
+                فیلتر کتاب‌ها
+            </h2>
+
+            <p class="mt-0.5 text-xs text-zinc-500">
+                معیارهای جست‌وجو را انتخاب کن
+            </p>
+        </div>
+
+    </div>
 </div>
 
-<form method="get" class="mb-8 rounded-3xl border border-zinc-200 bg-white p-4 shadow-soft sm:p-5">
-    <div class="flex flex-col gap-3 sm:flex-row">
-        <div class="relative flex-1">
-            <i data-lucide="search" class="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400"></i>
-            <input name="search" value="{{ request.GET.search }}" placeholder="عنوان یا نویسنده..." class="focus-ring w-full rounded-2xl border border-zinc-200 py-4 pr-12 pl-4 text-sm transition">
+
+<form method="get" action="{% url 'book-Search' %}" class="p-6 sm:p-8">
+
+    <div class="grid gap-5 lg:grid-cols-3">
+
+        <!-- Search -->
+        <div class="lg:col-span-3">
+
+            <label class="mb-2 block text-sm font-bold">
+                عنوان یا نویسنده
+            </label>
+
+            <div class="relative">
+
+                <i
+                    data-lucide="search"
+                    class="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400"
+                ></i>
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request.GET.search }}"
+                    placeholder="مثلاً هری پاتر یا J.K. Rowling"
+                    class="focus-ring w-full rounded-xl border border-zinc-200 bg-white py-3.5 pr-12 pl-4 text-sm transition placeholder:text-zinc-300"
+                >
+
+            </div>
+
+            <p class="mt-2 text-xs text-zinc-400">
+                جست‌وجو روی عنوان و نام نویسنده انجام می‌شود.
+            </p>
+
         </div>
-        <button class="rounded-2xl bg-zinc-950 px-7 py-4 text-sm font-bold text-white hover:bg-violet-600">جست‌وجو</button>
+
+
+        <!-- Minimum Date -->
+        <div>
+
+            <label class="mb-2 block text-sm font-bold">
+                تاریخ انتشار از
+            </label>
+
+            <div class="relative">
+
+                <i
+                    data-lucide="calendar-days"
+                    class="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+                ></i>
+
+                <input
+                    type="date"
+                    name="min_publish_date"
+                    value="{{ request.GET.min_publish_date }}"
+                    class="focus-ring w-full rounded-xl border border-zinc-200 bg-white py-3.5 pr-11 pl-4 text-sm transition"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- Maximum Date -->
+        <div>
+
+            <label class="mb-2 block text-sm font-bold">
+                تاریخ انتشار تا
+            </label>
+
+            <div class="relative">
+
+                <i
+                    data-lucide="calendar-days"
+                    class="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+                ></i>
+
+                <input
+                    type="date"
+                    name="max_publish_date"
+                    value="{{ request.GET.max_publish_date }}"
+                    class="focus-ring w-full rounded-xl border border-zinc-200 bg-white py-3.5 pr-11 pl-4 text-sm transition"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- Quick filter -->
+        <div>
+
+            <label class="mb-2 block text-sm font-bold">
+                وضعیت فیلتر
+            </label>
+
+            <div class="flex h-[50px] items-center rounded-xl border border-zinc-200 bg-zinc-50 px-4">
+
+                <div class="flex items-center gap-2 text-sm text-zinc-500">
+
+                    <span class="h-2 w-2 rounded-full bg-violet-500"></span>
+
+                    <span>
+                        فیلتر فعال
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
+
+
+    <!-- Buttons -->
+    <div class="mt-7 flex flex-col gap-3 border-t border-zinc-100 pt-6 sm:flex-row">
+
+        <button
+            type="submit"
+            class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-zinc-950 px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-violet-600"
+        >
+
+            <i data-lucide="search" class="h-4 w-4"></i>
+
+            جست‌وجو و فیلتر
+
+        </button>
+
+
+        <a
+            href="{% url 'book-Search' %}"
+            class="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-6 py-3.5 text-sm font-bold text-zinc-600 transition hover:bg-zinc-50"
+        >
+
+            <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
+
+            پاک کردن فیلترها
+
+        </a>
+
+    </div>
+
 </form>
+```
+
+</section>
+
+<!-- Results -->
+
+<div class="mb-5 flex items-end justify-between gap-4">
+
+```
+<div>
+
+    <h2 class="text-xl font-black">
+        نتایج
+    </h2>
+
+    <p class="mt-1 text-sm text-zinc-500">
+        {% if request.GET.search or request.GET.min_publish_date or request.GET.max_publish_date %}
+            نتایج مطابق فیلترهای انتخاب‌شده
+        {% else %}
+            تمام کتاب‌ها
+        {% endif %}
+    </p>
+
+</div>
+
+
+<div class="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-bold text-zinc-600">
+
+    {{ books|length }}
+
+    کتاب
+
+</div>
+```
+
+</div>
 
 {% if books %}
-<div class="mb-4 flex items-center justify-between">
-    <span class="text-sm font-semibold text-zinc-500">نتایج پیدا شده</span>
-    <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs font-bold">{{ books|length }} نتیجه</span>
-</div>
-<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    {% for book in books %}
-    <a href="{% url 'book-Detail' book.id %}" class="book-card rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-        <div class="mb-4 flex items-start justify-between gap-3">
-            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-zinc-950 text-white"><i data-lucide="book-open" class="h-5 w-5"></i></div>
-            <span class="rounded-lg bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-600">{{ book.publish_date }}</span>
+
+<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+```
+{% for book in books %}
+
+<article class="book-card group overflow-hidden rounded-3xl border border-zinc-200/80 bg-white shadow-soft">
+
+    <!-- Cover -->
+    <div class="relative flex h-32 items-center justify-center overflow-hidden bg-zinc-100">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-violet-100 via-white to-zinc-200"></div>
+
+        <div class="relative grid h-20 w-16 -rotate-3 place-items-center rounded-lg bg-zinc-950 text-white shadow-xl transition duration-300 group-hover:rotate-0">
+
+            <i data-lucide="book-open" class="h-7 w-7"></i>
+
         </div>
-        <h3 class="truncate font-extrabold">{{ book.title }}</h3>
-        <p class="mt-1 text-sm text-zinc-500">{{ book.author }}</p>
-        <div class="mt-5 flex items-center justify-between border-t border-zinc-100 pt-4">
-            <span class="text-sm font-black">{{ book.price|floatformat:0 }} تومان</span>
-            <span class="text-xs font-bold text-violet-600">جزئیات ←</span>
+
+        <div class="absolute right-4 top-4 rounded-full border border-white/70 bg-white/80 px-2.5 py-1 text-[10px] font-bold text-zinc-600 backdrop-blur">
+
+            {{ book.page }}
+
+            صفحه
+
         </div>
-    </a>
-    {% endfor %}
+
+    </div>
+
+
+    <!-- Content -->
+    <div class="p-5">
+
+        <div class="flex items-start justify-between gap-3">
+
+            <div class="min-w-0">
+
+                <h3 class="truncate text-lg font-extrabold">
+                    {{ book.title }}
+                </h3>
+
+                <p class="mt-1 text-sm text-zinc-500">
+                    {{ book.author }}
+                </p>
+
+            </div>
+
+
+            <!-- Favorite -->
+            <a
+                href="{% url 'book-Favorite' book.id %}"
+                class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-red-100 text-red-500 transition hover:scale-110 hover:bg-red-50"
+                title="افزودن به علاقه‌مندی‌ها"
+            >
+
+                {% if request.user in book.favorites.all %}
+                    ❤️
+                {% else %}
+                    ♡
+                {% endif %}
+
+            </a>
+
+        </div>
+
+
+        <!-- Meta -->
+        <div class="mt-4 flex flex-wrap gap-2">
+
+            <span class="rounded-lg bg-zinc-100 px-2.5 py-1 text-[11px] font-semibold text-zinc-600">
+                {{ book.publisher }}
+            </span>
+
+            <span class="rounded-lg bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-600">
+                {{ book.publish_date }}
+            </span>
+
+        </div>
+
+
+        <!-- Bottom -->
+        <div class="mt-5 flex items-center gap-2 border-t border-zinc-100 pt-4">
+
+            <a
+                href="{% url 'book-Detail' book.id %}"
+                class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-zinc-950 px-3 py-2.5 text-sm font-bold text-white transition hover:bg-violet-600"
+            >
+
+                مشاهده
+
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+
+            </a>
+
+
+            <a
+                href="{% url 'book-Edit' book.id %}"
+                class="grid h-10 w-10 place-items-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:border-violet-300 hover:bg-violet-50 hover:text-violet-600"
+                title="ویرایش"
+            >
+
+                <i data-lucide="pencil" class="h-4 w-4"></i>
+
+            </a>
+
+
+            <form
+                method="post"
+                action="{% url 'book-Delete' book.id %}"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    data-confirm="آیا از حذف این کتاب مطمئن هستید؟"
+                    class="grid h-10 w-10 place-items-center rounded-xl border border-red-100 text-red-500 transition hover:bg-red-50 hover:text-red-600"
+                    title="حذف"
+                >
+
+                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</article>
+
+{% endfor %}
+```
+
 </div>
+
 {% else %}
-<div class="rounded-3xl border border-dashed border-zinc-300 bg-white px-6 py-20 text-center">
-    <div class="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-zinc-100"><i data-lucide="search-x" class="h-7 w-7 text-zinc-400"></i></div>
-    <h3 class="mt-5 font-black">نتیجه‌ای پیدا نشد</h3>
-    <p class="mt-2 text-sm text-zinc-500">عبارت دیگری را امتحان کن.</p>
+
+<!-- Empty state -->
+
+<div class="rounded-3xl border border-dashed border-zinc-300 bg-white px-6 py-20 text-center shadow-sm">
+
+```
+<div class="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-zinc-100">
+
+    <i data-lucide="search-x" class="h-7 w-7 text-zinc-400"></i>
+
 </div>
+
+<h3 class="mt-5 text-lg font-black">
+    هیچ کتابی پیدا نشد
+</h3>
+
+<p class="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+    معیارهای جست‌وجو یا بازه‌ی تاریخ را تغییر بده و دوباره امتحان کن.
+</p>
+
+<a
+    href="{% url 'book-Search' %}"
+    class="mt-6 inline-flex items-center gap-2 rounded-xl bg-zinc-950 px-5 py-3 text-sm font-bold text-white hover:bg-violet-600"
+>
+
+    <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
+
+    حذف فیلترها
+
+</a>
+```
+
+</div>
+
 {% endif %}
+
 {% endblock %}
