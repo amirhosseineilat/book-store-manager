@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from .models import *
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login , logout
 from django.contrib.auth.decorators import login_required
 
 
@@ -26,7 +28,7 @@ def book_detail_view(request, book_id):
 
         return render(request, "book/404.html", context)
 
-
+@login_required
 def book_add_view(request):
     if request.method == "POST":
         title = request.POST.get("title")
@@ -89,7 +91,7 @@ def book_search_view(request):
         }
     )
 
-
+@login_required
 def book_edit_view(request, book_id):
     try:
         book = Book.objects.get(pk=book_id)
@@ -127,7 +129,7 @@ def book_edit_view(request, book_id):
 
         return render(request, "book/404.html", context)
 
-
+@login_required
 def book_delete_view(request, book_id):
     try:
         book = Book.objects.get(pk=book_id)
@@ -163,7 +165,7 @@ def book_filter_view(request):
 
     return render(request, "book/search.html", {"books": books})
 
-
+@login_required
 def book_filter_delete_view(request):
 
     books = Book.objects.all()
@@ -207,3 +209,69 @@ def toggle_favorite(request, book_id):
         book.favorites.add(request.user)
 
     return redirect("book-Search")
+
+def register(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        password = request.POST.get("password1")
+        firstname = request.POST.get("firstname")
+        lastname = request.POST.get("lastname")
+        email = request.POST.get("email")
+
+        if User.objects.filter(username=username).exist():
+            return render(
+                request,
+                'book/register.html',
+                { 'message' : 'you already registered please login' })
+
+        User.objects.create_user(
+            username=username,
+            password=password,
+            firstname=firstname,
+            lastname=lastname,
+            email=email)
+
+        return redirect("Login")
+
+    return render(
+        request,
+        'book/register.html')
+
+
+def login(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(
+                username=username,
+                password=password
+            )
+
+        if user is not None:
+
+            login(request,user)
+
+            return redirect('book-List')
+
+        return return render(
+            request,
+            'book/login',
+            { 'message' : 'your username or password is not valid' }
+        )
+    
+    return render(
+            request,
+            'book/login',
+        )
+
+
+def logout(request):
+
+    logout(request)
+
+    return redirect('book-List')
