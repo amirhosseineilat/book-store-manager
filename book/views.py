@@ -86,12 +86,12 @@ def book_add_view(request):
 def book_search_view(request):
 
     books = Book.objects.all()
-    category = Category.objects.all()
+    categories = Category.objects.all()
 
     search = request.GET.get("search")
     min_publish_date = request.GET.get("min_publish_date")
     max_publish_date = request.GET.get("max_publish_date")
-    categories = request.GET.get("categories")
+    category = request.GET.get("category")
 
 
     if search:
@@ -110,7 +110,7 @@ def book_search_view(request):
             publish_date__lte=max_publish_date
         )
 
-    if categories:
+    if category:
         books = books.filter(
             categories__id=category
         )
@@ -120,7 +120,7 @@ def book_search_view(request):
         "book/search.html",
         {
             "books": books
-            "category":category
+            "categories":categories
         }
     )
 
