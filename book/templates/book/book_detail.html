@@ -1,77 +1,174 @@
-{% extends "book/base.html" %}
-{% block title %}{{ book.title }} | BookVault{% endblock %}
+{% extends "book/base.html" %} {% block title %}{{ book.title }} | BookVault{%
+endblock %} {% block content %}
 
-{% block content %}
-<div class="mb-6 flex items-center gap-2 text-sm text-zinc-500">
-    <a href="{% url 'book-List' %}" class="transition hover:text-zinc-950">کتاب‌ها</a>
-    <i data-lucide="chevron-left" class="h-4 w-4"></i>
-    <span class="font-semibold text-zinc-900">{{ book.title }}</span>
+<div class="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+  ```
+  <a
+    href="{% url 'book-List' %}"
+    class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-zinc-500 transition hover:text-zinc-950"
+  >
+    <i data-lucide="arrow-right" class="h-4 w-4"></i>
+    بازگشت به کتاب‌ها
+  </a>
+
+  <div
+    class="overflow-hidden rounded-[2rem] border border-zinc-200 bg-white shadow-soft"
+  >
+    <div class="grid lg:grid-cols-[320px_1fr]">
+      <!-- Cover -->
+      <div
+        class="relative min-h-[360px] overflow-hidden bg-gradient-to-br from-zinc-950 via-zinc-800 to-violet-950"
+      >
+        <div
+          class="absolute inset-0 opacity-20"
+          style="
+            background-image: linear-gradient(
+              135deg,
+              white 1px,
+              transparent 1px
+            );
+            background-size: 24px 24px;
+          "
+        ></div>
+
+        <div
+          class="relative flex h-full min-h-[360px] items-center justify-center"
+        >
+          <div class="text-center text-white">
+            <i data-lucide="book-open" class="mx-auto h-24 w-24 opacity-80"></i>
+
+            <p class="mt-6 max-w-[220px] text-xl font-black leading-8">
+              {{ book.title }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="p-7 sm:p-10">
+        <div class="flex flex-col gap-6">
+          <div>
+            <div class="mb-3 flex flex-wrap gap-2">
+              {% for category in book.genre.all %}
+
+              <span
+                class="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-600"
+              >
+                {{ category.name }}
+              </span>
+
+              {% endfor %}
+            </div>
+
+            <h1 class="text-3xl font-black tracking-tight sm:text-4xl">
+              {{ book.title }}
+            </h1>
+
+            <p class="mt-2 text-base text-zinc-500">{{ book.author }}</p>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-wrap gap-3">
+            {% if request.user.is_authenticated %}
+
+            <form method="post" action="{% url 'book-Favorite' book.id %}">
+              {% csrf_token %}
+
+              <button
+                type="submit"
+                class="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition {% if is_favorite %}bg-red-50 text-red-600{% else %}border border-zinc-200 text-zinc-700 hover:border-red-200 hover:bg-red-50 hover:text-red-500{% endif %}"
+              >
+                <i
+                  data-lucide="heart"
+                  class="h-4 w-4 {% if is_favorite %}fill-current{% endif %}"
+                ></i>
+
+                {% if is_favorite %} حذف از علاقه‌مندی‌ها {% else %} افزودن به
+                علاقه‌مندی‌ها {% endif %}
+              </button>
+            </form>
+
+            <a
+              href="{% url 'book-Edit' book.id %}"
+              class="inline-flex items-center gap-2 rounded-xl bg-zinc-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-violet-600"
+            >
+              <i data-lucide="pencil" class="h-4 w-4"></i>
+              ویرایش
+            </a>
+
+            {% endif %}
+          </div>
+
+          <!-- Details -->
+          <div class="grid gap-3 border-y border-zinc-100 py-6 sm:grid-cols-2">
+            <div class="rounded-2xl bg-zinc-50 p-4">
+              <div class="text-xs text-zinc-400">نویسنده</div>
+              <div class="mt-1 text-sm font-bold">{{ book.author }}</div>
+            </div>
+
+            <div class="rounded-2xl bg-zinc-50 p-4">
+              <div class="text-xs text-zinc-400">ناشر</div>
+              <div class="mt-1 text-sm font-bold">{{ book.publisher }}</div>
+            </div>
+
+            <div class="rounded-2xl bg-zinc-50 p-4">
+              <div class="text-xs text-zinc-400">ISBN</div>
+              <div class="mt-1 text-sm font-bold">{{ book.isbn }}</div>
+            </div>
+
+            <div class="rounded-2xl bg-zinc-50 p-4">
+              <div class="text-xs text-zinc-400">تاریخ انتشار</div>
+              <div class="mt-1 text-sm font-bold">{{ book.publish_date }}</div>
+            </div>
+
+            <div class="rounded-2xl bg-zinc-50 p-4">
+              <div class="text-xs text-zinc-400">تعداد صفحات</div>
+              <div class="mt-1 text-sm font-bold">{{ book.page }} صفحه</div>
+            </div>
+
+            <div class="rounded-2xl bg-violet-50 p-4">
+              <div class="text-xs text-violet-400">قیمت</div>
+              <div class="mt-1 text-sm font-black text-violet-700">
+                {{ book.price }} تومان
+              </div>
+            </div>
+          </div>
+
+          {% if request.user.is_authenticated %}
+
+          <div class="border-t border-zinc-100 pt-6">
+            <form
+              method="post"
+              action="{% url 'book-Delete' book.id %}"
+              class="flex items-center justify-between gap-4"
+            >
+              {% csrf_token %}
+
+              <div>
+                <h3 class="text-sm font-black">حذف کتاب</h3>
+
+                <p class="mt-1 text-xs text-zinc-400">
+                  این عملیات قابل بازگشت نیست.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                data-confirm="آیا از حذف این کتاب مطمئن هستید؟"
+                class="inline-flex shrink-0 items-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-xs font-bold text-red-500 transition hover:bg-red-50"
+              >
+                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                حذف کتاب
+              </button>
+            </form>
+          </div>
+
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  ```
 </div>
 
-<section class="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-soft">
-    <div class="grid lg:grid-cols-[280px_1fr]">
-        <div class="relative flex min-h-[300px] items-center justify-center overflow-hidden bg-zinc-950 p-10">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(139,92,246,.35),transparent_55%)]"></div>
-            <div class="relative h-64 w-44 rotate-[-4deg] rounded-xl border border-white/10 bg-gradient-to-br from-zinc-800 to-black p-5 text-white shadow-2xl transition hover:rotate-0">
-                <div class="flex h-full flex-col justify-between border-r border-white/10 pr-4">
-                    <i data-lucide="book-open" class="h-8 w-8 text-violet-400"></i>
-                    <div>
-                        <div class="text-lg font-black leading-7">{{ book.title }}</div>
-                        <div class="mt-2 text-xs text-zinc-400">{{ book.author }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="p-7 sm:p-10">
-            <div class="flex flex-wrap items-start justify-between gap-5">
-                <div>
-                    <div class="mb-3 inline-flex rounded-full bg-violet-50 px-3 py-1.5 text-xs font-bold text-violet-600">جزئیات کتاب</div>
-                    <h1 class="text-3xl font-black tracking-tight sm:text-4xl">{{ book.title }}</h1>
-                    <p class="mt-2 text-base text-zinc-500">نوشته‌ی {{ book.author }}</p>
-                </div>
-                <div class="rounded-2xl bg-zinc-950 px-5 py-3 text-left text-white">
-                    <div class="text-xl font-black">{{ book.price|floatformat:0 }}</div>
-                    <div class="text-[10px] text-zinc-400">تومان</div>
-                </div>
-            </div>
-
-            <div class="mt-8 grid gap-3 sm:grid-cols-2">
-                <div class="rounded-2xl bg-zinc-50 p-4">
-                    <div class="mb-2 flex items-center gap-2 text-xs text-zinc-400"><i data-lucide="user" class="h-4 w-4"></i> نویسنده</div>
-                    <div class="font-bold">{{ book.author }}</div>
-                </div>
-                <div class="rounded-2xl bg-zinc-50 p-4">
-                    <div class="mb-2 flex items-center gap-2 text-xs text-zinc-400"><i data-lucide="building-2" class="h-4 w-4"></i> ناشر</div>
-                    <div class="font-bold">{{ book.publisher }}</div>
-                </div>
-                <div class="rounded-2xl bg-zinc-50 p-4">
-                    <div class="mb-2 flex items-center gap-2 text-xs text-zinc-400"><i data-lucide="calendar" class="h-4 w-4"></i> تاریخ انتشار</div>
-                    <div class="font-bold">{{ book.publish_date }}</div>
-                </div>
-                <div class="rounded-2xl bg-zinc-50 p-4">
-                    <div class="mb-2 flex items-center gap-2 text-xs text-zinc-400"><i data-lucide="files" class="h-4 w-4"></i> تعداد صفحات</div>
-                    <div class="font-bold">{{ book.page }} صفحه</div>
-                </div>
-            </div>
-
-            <div class="mt-6 rounded-2xl border border-zinc-200 p-4">
-                <div class="mb-2 flex items-center gap-2 text-xs text-zinc-400"><i data-lucide="barcode" class="h-4 w-4"></i> ISBN</div>
-                <div class="font-mono text-sm font-bold tracking-wider">{{ book.isbn }}</div>
-            </div>
-
-            <div class="mt-7 flex flex-col gap-3 sm:flex-row">
-                <a href="{% url 'book-Edit' book.id %}" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-zinc-950 px-5 py-3.5 text-sm font-bold text-white hover:bg-violet-600">
-                    <i data-lucide="pencil" class="h-4 w-4"></i> ویرایش کتاب
-                </a>
-                <form method="post" action="{% url 'book-Delete' book.id %}" class="flex-1">
-                    {% csrf_token %}
-                    <button type="submit" data-confirm="این کتاب حذف شود؟" class="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 py-3.5 text-sm font-bold text-red-600 hover:bg-red-100">
-                        <i data-lucide="trash-2" class="h-4 w-4"></i> حذف کتاب
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</section>
 {% endblock %}

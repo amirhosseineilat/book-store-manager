@@ -55,6 +55,9 @@ def book_add_genre_view(request, name):
 
 @login_required
 def book_add_view(request):
+
+    categories = Category.objects.all()
+
     if request.method == "POST":
         title = request.POST.get("title")
         author = request.POST.get("author")
@@ -79,7 +82,7 @@ def book_add_view(request):
 
         return redirect("book-List")
 
-    return render(request, "book/add_book.html")
+    return render(request, "book/add_book.html", {"categories": categories})
 
 
 def book_search_view(request):
@@ -102,7 +105,7 @@ def book_search_view(request):
         books = books.filter(publish_date__lte=max_publish_date)
 
     if category:
-        books = books.filter(categories__id=category)
+        books = books.filter(genre__id=category)
 
     return render(
         request, "book/search.html", {"books": books, "categories": categories}
@@ -113,6 +116,7 @@ def book_search_view(request):
 def book_edit_view(request, book_id):
     try:
         book = Book.objects.get(pk=book_id)
+        categories = Category.objects.all()
 
         if request.method == "POST":
 
@@ -138,7 +142,14 @@ def book_edit_view(request, book_id):
 
             return redirect("book-List")
 
-        return render(request, "book/edit_book.html", {"book": book})
+        return render(
+            request,
+            "book/edit_book.html",
+            {
+                "book": book,
+                "categories": categories,
+            },
+        )
 
     except Book.DoesNotExist:
         context = {"message": "this book does not avaiable"}
@@ -214,7 +225,7 @@ def toggle_favorite(request, book_id):
 
             book.favorites.add(request.user)
 
-    return redirect("book-detail", book_id=book_id)
+    return redirect("book-Detail", book_id=book_id)
 
 
 def register_view(request):
