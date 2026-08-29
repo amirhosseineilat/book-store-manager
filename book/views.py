@@ -38,6 +38,21 @@ def book_detail_view(request, book_id):
         return render(request, "book/404.html", context)
 
 @login_required
+def book_add_genre_view(request):
+    if request.method == "POST":
+        genre = request.POST.get("genre")
+        
+
+        book = Category.objects.create(
+            name=name,
+            
+        )
+
+        return redirect("book-List")
+
+    return render(request, "book/add_genre_book.html")
+
+@login_required
 def book_add_view(request):
     if request.method == "POST":
         title = request.POST.get("title")
