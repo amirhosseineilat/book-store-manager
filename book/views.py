@@ -286,6 +286,14 @@ def logout_view(request):
 
     return redirect('book-List')
 
+def my_favorite_view(request):
 
+    fav_books = request.user.favorites.all()
 
+    return render(
+        request,
+        "book/my_favorite.html",
+        {
+        "fav_books":fav_books
+        })
     
