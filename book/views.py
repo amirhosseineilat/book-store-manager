@@ -1,13 +1,14 @@
-from django.shortcuts import render, redirect , get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from .models import *
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login , logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
 
 def home(request):
-    return render(request,'book/home.html')
+    return render(request, "book/home.html")
+
 
 def book_list_view(request):
     books = Book.objects.all()
@@ -28,7 +29,7 @@ def book_detail_view(request, book_id):
         else:
             is_favorite = False
 
-        context = {"book": book,'is_favorite':is_favorite}
+        context = {"book": book, "is_favorite": is_favorite}
 
         return render(request, "book/book_detail.html", context)
 
@@ -37,20 +38,20 @@ def book_detail_view(request, book_id):
 
         return render(request, "book/404.html", context)
 
+
 @login_required
-def book_add_genre_view(request):
+def book_add_genre_view(request, name):
     if request.method == "POST":
         genre = request.POST.get("genre")
-        
 
         book = Category.objects.create(
             name=name,
-            
         )
 
         return redirect("book-List")
 
     return render(request, "book/add_genre_book.html")
+
 
 @login_required
 def book_add_view(request):
@@ -63,7 +64,6 @@ def book_add_view(request):
         price = request.POST.get("price")
         page = request.POST.get("page")
         genre = request.POST.getlist("genre")
-        
 
         book = Book.objects.create(
             title=title,
@@ -76,7 +76,6 @@ def book_add_view(request):
         )
 
         book.genre.set(genre)
-        
 
         return redirect("book-List")
 
@@ -93,36 +92,22 @@ def book_search_view(request):
     max_publish_date = request.GET.get("max_publish_date")
     category = request.GET.get("category")
 
-
     if search:
-        books = books.filter(
-            Q(title__icontains=search) |
-            Q(author__icontains=search)
-        )
+        books = books.filter(Q(title__icontains=search) | Q(author__icontains=search))
 
     if min_publish_date:
-        books = books.filter(
-            publish_date__gte=min_publish_date
-        )
+        books = books.filter(publish_date__gte=min_publish_date)
 
     if max_publish_date:
-        books = books.filter(
-            publish_date__lte=max_publish_date
-        )
+        books = books.filter(publish_date__lte=max_publish_date)
 
     if category:
-        books = books.filter(
-            categories__id=category
-        )
+        books = books.filter(categories__id=category)
 
     return render(
-        request,
-        "book/search.html",
-        {
-            "books": books
-            "categories":categories
-        }
+        request, "book/search.html", {"books": books, "categories": categories}
     )
+
 
 @login_required
 def book_edit_view(request, book_id):
@@ -160,6 +145,7 @@ def book_edit_view(request, book_id):
 
         return render(request, "book/404.html", context)
 
+
 @login_required
 def book_delete_view(request, book_id):
     try:
@@ -177,6 +163,7 @@ def book_delete_view(request, book_id):
         context = {"message": "this book does not avaiable"}
 
         return render(request, "book/404.html", context)
+
 
 @login_required
 def book_filter_delete_view(request):
@@ -212,22 +199,23 @@ def book_filter_delete_view(request):
         return redirect("book-List")
     return render(request, "book/filter_delete.html", {"books": books})
 
+
 @login_required
 def toggle_favorite(request, book_id):
-    book = get_object_or_404(Book,pk=book_id)
+    book = get_object_or_404(Book, pk=book_id)
 
     if request.method == "POST":
 
         if book.favorites.filter(id=request.user.id).exists():
-           
+
             book.favorites.remove(request.user)
 
-          else:
-            
+        else:
+
             book.favorites.add(request.user)
 
     return redirect("book-detail", book_id=book_id)
-    
+
 
 def register_view(request):
 
@@ -242,67 +230,59 @@ def register_view(request):
         if User.objects.filter(username=username).exists():
             return render(
                 request,
-                'book/register.html',
-                { 'message' : 'you already registered please login' })
+                "book/register.html",
+                {"message": "you already registered please login"},
+            )
 
         User.objects.create_user(
             username=username,
             password=password,
             first_name=firstname,
             last_name=lastname,
-            email=email)
+            email=email,
+        )
 
         return redirect("Login")
 
-    return render(
-        request,
-        'book/register.html')
+    return render(request, "book/register.html")
 
 
 def login_veiw(request):
 
     if request.method == "POST":
 
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-        user = authenticate(
-                username=username,
-                password=password
-            )
+        user = authenticate(username=username, password=password)
 
         if user is not None:
 
-            login(request,user)
+            login(request, user)
 
-            return redirect('book-List')
+            return redirect("book-List")
 
         return render(
             request,
-            'book/login.html',
-            { 'message' : 'your username or password is not valid' }
+            "book/login.html",
+            {"message": "your username or password is not valid"},
         )
-    
+
     return render(
-            request,
-            'book/login.html',
-        )
+        request,
+        "book/login.html",
+    )
 
 
 def logout_view(request):
 
     logout(request)
 
-    return redirect('book-List')
+    return redirect("book-List")
+
 
 def my_favorite_view(request):
 
     fav_books = request.user.favorites.all()
 
-    return render(
-        request,
-        "book/my_favorite.html",
-        {
-        "fav_books":fav_books
-        })
-    
+    return render(request, "book/my_favorite.html", {"fav_books": fav_books})
