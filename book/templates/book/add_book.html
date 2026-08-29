@@ -1,64 +1,48 @@
 {% extends "book/base.html" %}
-{% block title %}افزودن کتاب | BookVault{% endblock %}
 
+{% block extra_head %}
+<style>
+.field-label{display:block;margin-bottom:.45rem;font-size:.75rem;font-weight:700;color:#a1a1aa}
+.field-input{width:100%;border-radius:.8rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);padding:.75rem .9rem;font-size:.875rem;color:#fff;outline:none;transition:.2s}
+.field-input:focus{border-color:rgba(139,92,246,.6);box-shadow:0 0 0 3px rgba(139,92,246,.1)}
+.field-input::placeholder{color:#52525b}
+</style>
+{% endblock %}
+
+{% block title %}Add book — BookVault{% endblock %}
 {% block content %}
-<div class="mx-auto max-w-4xl">
-    <div class="mb-8">
-        <div class="mb-3 inline-flex rounded-full bg-violet-50 px-3 py-1.5 text-xs font-bold text-violet-600">کتاب جدید</div>
-        <h1 class="text-3xl font-black tracking-tight sm:text-4xl">یک کتاب به کتابخانه اضافه کن.</h1>
-        <p class="mt-2 text-sm text-zinc-500">اطلاعات کتاب را وارد کن. فیلدها را با دقت پر کن تا بعداً جست‌وجوی بهتری داشته باشی.</p>
+<section class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+    <a href="{% url 'book-List' %}" class="text-sm text-zinc-500 hover:text-white">← Library</a>
+    <div class="mt-6 rounded-3xl border border-white/10 bg-white/[.03] p-6 sm:p-9">
+        <p class="text-xs font-bold uppercase tracking-[.2em] text-accent-300">New entry</p>
+        <h1 class="mt-2 text-3xl font-black">Add a book</h1>
+        <p class="mt-2 text-sm text-zinc-500">Keep the metadata clean. Your future self will thank you.</p>
+        <form method="post" class="mt-8 space-y-6">
+            {% csrf_token %}
+            <div class="grid gap-5 sm:grid-cols-2">
+                <div class="sm:col-span-2"><label class="field-label">Title</label><input required name="title" class="field-input" placeholder="The title of the book"></div>
+                <div><label class="field-label">Author</label><input required name="author" class="field-input" placeholder="Author name"></div>
+                <div><label class="field-label">ISBN</label><input required name="isbn" class="field-input" placeholder="ISBN"></div>
+                <div><label class="field-label">Publisher</label><input required name="publisher" class="field-input" placeholder="Publisher"></div>
+                <div><label class="field-label">Publication date</label><input required type="date" name="publish_date" class="field-input"></div>
+                <div><label class="field-label">Price</label><input required type="number" step="0.01" min="0" name="price" class="field-input" placeholder="0.00"></div>
+                <div><label class="field-label">Pages</label><input required type="number" min="1" name="page" class="field-input" placeholder="300"></div>
+            </div>
+            <div>
+                <div class="mb-3 flex items-center justify-between"><label class="field-label !mb-0">Genres</label><a href="{% url 'book-Add-Genre' 'New' %}" class="text-xs font-semibold text-accent-300 hover:text-accent-400">+ New genre</a></div>
+                <div class="grid gap-2 sm:grid-cols-2">
+                    {% for category in categories %}
+                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-zinc-300 hover:border-white/20">
+                        <input type="checkbox" name="genre" value="{{ category.id }}" class="h-4 w-4 accent-violet-500">{{ category.name }}
+                    </label>
+                    {% empty %}<p class="text-sm text-zinc-600">No genres yet.</p>{% endfor %}
+                </div>
+            </div>
+            <div class="flex flex-col-reverse gap-3 border-t border-white/10 pt-6 sm:flex-row sm:justify-end">
+                <a href="{% url 'book-List' %}" class="rounded-xl border border-white/10 px-5 py-3 text-center text-sm font-semibold text-zinc-300 hover:bg-white/5">Cancel</a>
+                <button class="rounded-xl bg-white px-5 py-3 text-sm font-bold text-zinc-950 hover:bg-zinc-200">Create book</button>
+            </div>
+        </form>
     </div>
-
-    <form method="post" class="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-soft">
-        {% csrf_token %}
-        <div class="border-b border-zinc-100 bg-zinc-50/70 px-6 py-5 sm:px-8">
-            <div class="flex items-center gap-3">
-                <span class="grid h-10 w-10 place-items-center rounded-xl bg-zinc-950 text-white"><i data-lucide="book-plus" class="h-5 w-5"></i></span>
-                <div><h2 class="font-extrabold">اطلاعات اصلی</h2><p class="text-xs text-zinc-500">مشخصات کتاب</p></div>
-            </div>
-        </div>
-
-        <div class="grid gap-5 p-6 sm:grid-cols-2 sm:p-8">
-            <label class="sm:col-span-2">
-                <span class="mb-2 block text-sm font-bold">عنوان کتاب</span>
-                <input name="title" required placeholder="مثلاً صد سال تنهایی" class="focus-ring w-full rounded-xl border border-zinc-200 bg-white px-4 py-3.5 text-sm transition placeholder:text-zinc-300">
-            </label>
-            <label>
-                <span class="mb-2 block text-sm font-bold">نویسنده</span>
-                <input name="author" required placeholder="نام نویسنده" class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition">
-            </label>
-            <label>
-                <span class="mb-2 block text-sm font-bold">ناشر</span>
-                <input name="publisher" required placeholder="نام ناشر" class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition">
-            </label>
-            <label>
-                <span class="mb-2 block text-sm font-bold">ISBN</span>
-                <input name="isbn" required placeholder="978..." class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 font-mono text-sm transition" dir="ltr">
-            </label>
-            <label>
-                <span class="mb-2 block text-sm font-bold">تاریخ انتشار</span>
-                <input name="publish_date" required type="date" class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition">
-            </label>
-            <label>
-                <span class="mb-2 block text-sm font-bold">قیمت <span class="font-normal text-zinc-400">(تومان)</span></span>
-                <input name="price" required type="number" min="0" step="any" placeholder="250000" class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition">
-            </label>
-            <label>
-                <span class="mb-2 block text-sm font-bold">تعداد صفحات</span>
-                <input name="page" required type="number" min="1" placeholder="320" class="focus-ring w-full rounded-xl border border-zinc-200 px-4 py-3.5 text-sm transition">
-            </label>
-
-            <div class="sm:col-span-2 rounded-2xl border border-amber-100 bg-amber-50 p-4 text-xs leading-6 text-amber-800">
-                <div class="flex gap-2"><i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0"></i><span>فیلدهای <b>favorites</b> و <b>genre</b> در مدل شما ManyToMany هستند؛ ویوی فعلی با مقدار متنی POST نمی‌تواند آن‌ها را به‌درستی ذخیره کند. برای آن بخش بهتر است View/Form اصلاح شود.</span></div>
-            </div>
-        </div>
-
-        <div class="flex flex-col-reverse gap-3 border-t border-zinc-100 bg-zinc-50/50 px-6 py-5 sm:flex-row sm:justify-end sm:px-8">
-            <a href="{% url 'book-List' %}" class="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 py-3 text-sm font-bold text-zinc-600 hover:bg-zinc-100">انصراف</a>
-            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-950 px-6 py-3 text-sm font-bold text-white shadow-lg hover:bg-violet-600">
-                <i data-lucide="check" class="h-4 w-4"></i> ذخیره کتاب
-            </button>
-        </div>
-    </form>
-</div>
+</section>
 {% endblock %}

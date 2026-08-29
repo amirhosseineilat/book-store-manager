@@ -1,0 +1,19 @@
+{% extends "book/base.html" %}
+{% block title %}Add genre — BookVault{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-lg px-4 py-16 sm:px-6">
+    <div class="rounded-3xl border border-white/10 bg-white/[.03] p-7 sm:p-9">
+        <p class="text-xs font-bold uppercase tracking-[.2em] text-accent-300">Library taxonomy</p>
+        <h1 class="mt-2 text-3xl font-black">Create a genre</h1>
+        <form method="post" class="mt-7">
+            {% csrf_token %}
+            <label class="mb-2 block text-xs font-bold text-zinc-400">Genre name</label>
+            <input name="genre" required maxlength="50" class="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-accent-500" placeholder="Science Fiction">
+            <div class="mt-5 flex gap-3">
+                <a href="{% url 'book-Add' %}" class="flex-1 rounded-xl border border-white/10 px-4 py-3 text-center text-sm font-semibold text-zinc-300">Cancel</a>
+                <button class="flex-1 rounded-xl bg-white px-4 py-3 text-sm font-bold text-zinc-950">Create</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

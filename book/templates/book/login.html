@@ -1,0 +1,17 @@
+{% extends "book/base.html" %}
+{% block title %}Login — BookVault{% endblock %}
+{% block content %}
+<section class="grid min-h-[calc(100vh-8rem)] place-items-center px-4 py-12">
+    <div class="w-full max-w-md">
+        <div class="text-center"><div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-zinc-950">↗</div><h1 class="mt-5 text-3xl font-black">Welcome back</h1><p class="mt-2 text-sm text-zinc-500">Enter your credentials to access your library.</p></div>
+        {% if message %}<div class="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-300">{{ message }}</div>{% endif %}
+        <form method="post" class="mt-7 rounded-3xl border border-white/10 bg-white/[.03] p-6 sm:p-8">
+            {% csrf_token %}
+            <label class="mb-2 block text-xs font-bold text-zinc-400">Username</label><input required name="username" autocomplete="username" class="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-accent-500">
+            <label class="mb-2 mt-5 block text-xs font-bold text-zinc-400">Password</label><input required type="password" name="password" autocomplete="current-password" class="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-accent-500">
+            <button class="mt-6 w-full rounded-xl bg-white px-4 py-3.5 text-sm font-bold text-zinc-950 hover:bg-zinc-200">Sign in</button>
+            <p class="mt-5 text-center text-xs text-zinc-600">No account? <a href="{% url 'register' %}" class="font-semibold text-accent-300 hover:text-accent-200">Create one</a></p>
+        </form>
+    </div>
+</section>
+{% endblock %}

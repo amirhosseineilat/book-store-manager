@@ -1,0 +1,22 @@
+{% extends "book/base.html" %}
+{% block title %}Favorites — BookVault{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div class="flex items-end justify-between gap-4">
+        <div><p class="text-xs font-bold uppercase tracking-[.2em] text-red-400">Saved</p><h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Your favorites</h1><p class="mt-2 text-sm text-zinc-500">{{ fav_books|length }} saved book{{ fav_books|length|pluralize }}</p></div>
+    </div>
+    {% if fav_books %}
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {% for book in fav_books %}
+        <article class="group rounded-2xl border border-white/10 bg-white/[.03] p-5 transition hover:-translate-y-1 hover:border-red-500/20">
+            <div class="flex justify-between"><span class="text-red-500">♥</span><span class="text-xs text-zinc-600">{{ book.publish_date|date:"Y" }}</span></div>
+            <a href="{% url 'book-Detail' book.id %}"><h2 class="mt-7 line-clamp-2 text-lg font-bold group-hover:text-red-400">{{ book.title }}</h2><p class="mt-2 text-sm text-zinc-500">{{ book.author }}</p></a>
+            <div class="mt-6 flex justify-between border-t border-white/10 pt-4"><span class="text-sm font-bold">${{ book.price }}</span><a href="{% url 'book-Detail' book.id %}" class="text-xs text-zinc-500 hover:text-white">Open →</a></div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="mt-10 rounded-3xl border border-dashed border-white/10 p-20 text-center"><div class="text-4xl text-red-500/60">♡</div><h2 class="mt-4 text-xl font-bold">Nothing saved yet</h2><p class="mt-2 text-sm text-zinc-600">Favorite a book from its detail page and it will appear here.</p></div>
+    {% endif %}
+</section>
+{% endblock %}

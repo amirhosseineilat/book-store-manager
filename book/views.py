@@ -253,12 +253,12 @@ def register_view(request):
             email=email,
         )
 
-        return redirect("Login")
+        return redirect("login")
 
     return render(request, "book/register.html")
 
 
-def login_veiw(request):
+def login_view(request):
 
     if request.method == "POST":
 
