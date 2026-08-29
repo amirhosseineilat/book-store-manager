@@ -1,10 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect , get_object_or_404
 from django.db.models import Q
 from .models import *
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login , logout
 from django.contrib.auth.decorators import login_required
 
+
+def home(request):
+    return render(request,'book/home.html')
 
 def book_list_view(request):
     books = Book.objects.all()
@@ -19,7 +22,13 @@ def book_detail_view(request, book_id):
     try:
         book = Book.objects.get(pk=book_id)
 
-        context = {"book": book}
+        if request.user.is_authenticated:
+            is_favorite = book.favorites.filter(id=request.user.id).exists()
+
+        else:
+            is_favorite = False
+
+        context = {"book": book,'is_favorite':is_favorite}
 
         return render(request, "book/book_detail.html", context)
 
@@ -38,7 +47,8 @@ def book_add_view(request):
         publish_date = request.POST.get("publish_date")
         price = request.POST.get("price")
         page = request.POST.get("page")
-        genre_ids = request.POST.getlist("genre")
+        genre = request.POST.getlist("genre")
+        
 
         book = Book.objects.create(
             title=title,
@@ -50,13 +60,12 @@ def book_add_view(request):
             page=page,
         )
 
-        book.genre.set(genre_ids)
+        book.genre.set(genre)
+        
 
         return redirect("book-List")
 
-    categories = Category.objects.all()
-
-    return render(request, "book/add_book.html", {"categories": categories})
+    return render(request, "book/add_book.html")
 
 
 def book_search_view(request):
@@ -105,8 +114,7 @@ def book_edit_view(request, book_id):
             publish_date = request.POST.get("publish_date")
             price = request.POST.get("price")
             page = request.POST.get("page")
-            favorites = request.POST.get("favorites")
-            genre = request.POST.get("genre")
+            genre = request.POST.getlist("genre")
 
             book.title = title
             book.author = author
@@ -115,8 +123,7 @@ def book_edit_view(request, book_id):
             book.publish_date = publish_date
             book.price = price
             book.page = page
-            book.favorites = favorites
-            book.genre = genre
+            book.genre.set(genre)
 
             book.save()
 
@@ -146,24 +153,6 @@ def book_delete_view(request, book_id):
         context = {"message": "this book does not avaiable"}
 
         return render(request, "book/404.html", context)
-
-
-def book_filter_view(request):
-
-    books = Book.objects.all()
-
-    max_publish_date = request.GET.get("max_publish_date")
-    min_publish_date = request.GET.get("min_publish_date")
-
-    if max_publish_date:
-
-        books = books.filter(publish_date__lte=max_publish_date)
-
-    if min_publish_date:
-
-        books = books.filter(publish_date__gte=min_publish_date)
-
-    return render(request, "book/search.html", {"books": books})
 
 @login_required
 def book_filter_delete_view(request):
@@ -201,16 +190,22 @@ def book_filter_delete_view(request):
 
 @login_required
 def toggle_favorite(request, book_id):
-    book = Book.objects.get(pk=book_id)
+    book = get_object_or_404(Book,pk=book_id)
 
-    if request.user in book.favorites.all():
-        book.favorites.remove(request.user)
-    else:
-        book.favorites.add(request.user)
+    if request.method == "POST":
 
-    return redirect("book-Search")
+        if book.favorites.filter(id=request.user.id).exists():
+           
+            book.favorites.remove(request.user)
 
-def register(request):
+          else:
+            
+            book.favorites.add(request.user)
+
+    return redirect("book-detail", book_id=book_id)
+    
+
+def register_view(request):
 
     if request.method == "POST":
 
@@ -220,7 +215,7 @@ def register(request):
         lastname = request.POST.get("lastname")
         email = request.POST.get("email")
 
-        if User.objects.filter(username=username).exist():
+        if User.objects.filter(username=username).exists():
             return render(
                 request,
                 'book/register.html',
@@ -229,8 +224,8 @@ def register(request):
         User.objects.create_user(
             username=username,
             password=password,
-            firstname=firstname,
-            lastname=lastname,
+            first_name=firstname,
+            last_name=lastname,
             email=email)
 
         return redirect("Login")
@@ -240,7 +235,7 @@ def register(request):
         'book/register.html')
 
 
-def login(request):
+def login_veiw(request):
 
     if request.method == "POST":
 
@@ -258,20 +253,24 @@ def login(request):
 
             return redirect('book-List')
 
-        return return render(
+        return render(
             request,
-            'book/login',
+            'book/login.html',
             { 'message' : 'your username or password is not valid' }
         )
     
     return render(
             request,
-            'book/login',
+            'book/login.html',
         )
 
 
-def logout(request):
+def logout_view(request):
 
     logout(request)
 
     return redirect('book-List')
+
+
+
+    
